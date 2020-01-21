@@ -2,7 +2,7 @@ package com.example.assignment1;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.example.my_classes.*;
 
 @RestController
 public class MatchController {
@@ -11,6 +11,6 @@ public class MatchController {
     public String start_match(){
         Match match = new Match("Alpha","Beta");
         match.play_random();
-        return match.getSummary();
+        return Helper.getScoreCardHtml(match);
     }
 }
