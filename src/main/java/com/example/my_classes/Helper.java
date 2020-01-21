@@ -102,7 +102,7 @@ public class Helper {
 
 
     //Function to return the html output in string format
-    public static String getScoreCardHtml(Match m){
+/*    public static String getScoreCardHtml(Match m){
         Team team1 = m.getTeam1();
         Team team2 = m.getTeam2();
         String s = "<html>\n" +
@@ -123,7 +123,7 @@ public class Helper {
                 "<h2>Inning: 1</h2>"+
                 "<h3>Batting Team : "+team1.getName()+"</h3>"+
                 " Score = " + team1.getScore() + "/" + team1.getWickets_lost() + "<br>"+
-                "\t\t\t<table style=\"with: 50%\">\n"+
+                "\t\t\t<table style=\"border:1px solid black\">\n"+
                 "<tr>\n" +
                 "                <th>Player</th>\n" +
                 "                <th>RunsScored</th>\n" +
@@ -139,7 +139,7 @@ public class Helper {
 
         }
         s= s + str1 +"</table><h3>Bowling Team : "+team2.getName()+" </h3>";
-        s+="\t\t\t<table style=\"with: 50%\">\n"+
+        s+="\t\t\t<table border=\"1px \">\n"+
                 "<tr>\n" +
                 "                <th>Player</th>\n" +
                 "                <th>Overs</th>\n" +
@@ -159,7 +159,7 @@ public class Helper {
         s+="<h2>Inning: 2</h2>"+
                 "<h3>Batting Team : "+team2.getName()+ "</h3>"+
                 " Score = " + team2.getScore() + "/" + team2.getWickets_lost() + "<br>"+
-                "\t\t\t<table style=\"with: 50%\">\n"+
+                "\t\t\t<table style=\"border:1px solid black\">\n"+
                 "<tr>\n" +
                 "                <th>Player</th>\n" +
                 "                <th>RunsScored</th>\n" +
@@ -175,7 +175,7 @@ public class Helper {
 
         }
         s+= str3 + "</table><h3>Bowling Team :"+team1.getName()+"</h3>";
-        s+="\t\t\t<table style=\"with: 50%\">\n"+
+        s+="\t\t\t<table border=\"1px\">\n"+
                 "<tr>\n" +
                 "                <th>Player</th>\n" +
                 "                <th>Overs</th>\n" +
@@ -198,5 +198,5 @@ public class Helper {
                 "</html>";
         return s;
     }
-
+*/
 }

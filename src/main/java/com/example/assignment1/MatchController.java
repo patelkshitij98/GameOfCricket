@@ -8,9 +8,9 @@ import com.example.my_classes.*;
 public class MatchController {
 
     @RequestMapping("/startmatch")
-    public String start_match(){
+    public Match start_match(){
         Match match = new Match("Alpha","Beta");
         match.play_random();
-        return Helper.getScoreCardHtml(match);
+        return match;
     }
 }
