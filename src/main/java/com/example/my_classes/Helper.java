@@ -53,9 +53,13 @@ public class Helper {
                         player_on_strike = player_on_non_strike;
                         player_on_non_strike = temp;
                     }
-                    else if(runs_on_ball==4 || runs_on_ball==6){
-                        //increment boundaries scored by batsman
-                        batting_players[player_on_strike].setNoOfBoundaries(batting_players[player_on_strike].getNoOfBoundaries()+1);
+                    else if(runs_on_ball==4){
+                        //increment fours scored by batsman
+                        batting_players[player_on_strike].setNoOfFours(batting_players[player_on_strike].getNoOfFours()+1);
+                    }
+                    else if(runs_on_ball==6){
+                        //increment sixes scored by batsman
+                        batting_players[player_on_strike].setNoOfSixes(batting_players[player_on_strike].getNoOfSixes()+1);
                     }
                 }
 

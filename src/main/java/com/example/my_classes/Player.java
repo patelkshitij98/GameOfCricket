@@ -5,12 +5,28 @@ class Player {
     //        String name;
     private int noOfBalls_Played;
     private int noOfRuns_Scored;
-    private int noOfBoundaries;
+    private int noOfFours;
+    private int noOfSixes;
     private int noOfOvers;
     private int noOfRuns_Given;
     private int noOfWickets_Taken;
     private int noOfMaiden_Overs;
 
+    public int getNoOfFours() {
+        return noOfFours;
+    }
+
+    public void setNoOfFours(int noOfFours) {
+        this.noOfFours = noOfFours;
+    }
+
+    public int getNoOfSixes() {
+        return noOfSixes;
+    }
+
+    public void setNoOfSixes(int noOfSixes) {
+        this.noOfSixes = noOfSixes;
+    }
 
     public int getNoOfBalls_Played() {
         return noOfBalls_Played;
@@ -20,9 +36,6 @@ class Player {
         return noOfRuns_Scored;
     }
 
-    public int getNoOfBoundaries() {
-        return noOfBoundaries;
-    }
 
     public int getNoOfOvers() {
         return noOfOvers;
@@ -46,10 +59,6 @@ class Player {
 
     public void setNoOfRuns_Scored(int noOfRuns_Scored) {
         this.noOfRuns_Scored = noOfRuns_Scored;
-    }
-
-    public void setNoOfBoundaries(int noOfBoundaries) {
-        this.noOfBoundaries = noOfBoundaries;
     }
 
     public void setNoOfOvers(int noOfOvers) {
