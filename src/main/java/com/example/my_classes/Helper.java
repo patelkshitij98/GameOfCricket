@@ -1,6 +1,6 @@
 package com.example.my_classes;
 
-public class Helper {
+class Helper {
 
     /*Wide, No balls, free hits, extra runs for overthrow, Run out are not considered*/
     public static void play_inning_randomly(Team team_batting, Team team_bowling, int total_overs, int target) {
