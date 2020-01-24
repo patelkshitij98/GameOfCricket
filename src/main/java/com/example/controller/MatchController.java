@@ -1,16 +1,14 @@
-package com.example.assignment1;
+package com.example.controller;
 
+import com.example.beans.MatchScoreCard;
+import com.example.service.Helper;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_classes.*;
 
 @RestController
 public class MatchController {
-
     @RequestMapping("/startmatch")
-    public Match start_match(){
-        Match match = new Match("Alpha","Beta");
-        match.play_random();
-        return match;
+    public MatchScoreCard start_match(){
+        return Helper.play_match();
     }
 }
