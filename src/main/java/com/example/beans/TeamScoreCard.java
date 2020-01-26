@@ -1,8 +1,10 @@
 package com.example.beans;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Data;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public @Data class TeamScoreCard {
     private Team team;
@@ -10,8 +12,8 @@ public @Data class TeamScoreCard {
     private int wicketsLost;
     private Map<Integer, PlayerScoreCard> scoreCards;
 
-    public TeamScoreCard(String team_name) {
-        this.team = new Team(team_name);
+    public TeamScoreCard(String team_name, List<Player> playerList) {
+        this.team = new Team(team_name, playerList);
         this.scoreCards = new HashMap<>(11);
     }
 

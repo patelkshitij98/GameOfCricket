@@ -1,15 +1,15 @@
 package com.example.service;
 
 import com.example.beans.*;
+import com.example.util.GameHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class StartGame {
 
-    private void assignWinner(MatchScoreCard sc) {
+    private void assignTeamWinner(MatchScoreCard sc) {
         TeamScoreCard team1Sc = sc.getTeamScoreCard1(), team2Sc = sc.getTeamScoreCard2();
         String result = "TIE";
         if (team1Sc.getScore() > team2Sc.getScore()) {
@@ -20,104 +20,28 @@ public class StartGame {
         sc.setResult(result);
     }
 
-    /*Wide, No balls, free hits, extra runs for overthrow, Run out are not considered*/
-    private void playInning(TeamScoreCard battingTeamSc, int totalOvers, int target, List<PlayerScoreCard> playerScoreCards1, List<PlayerScoreCard> playerScoreCards2) {
-        // { runs = [0,7] } ==>> [[ 0-6 for runs, 7 is for wicket ]]
-        int playerOnStrike = 0, playerOnNonStrike = 1, nextPlayer = 2, currentOver = 1;
-
-        //Run this loop till overs are left and target is not achieved with wickets in hand
-        while (currentOver <= totalOvers && battingTeamSc.getScore() < target && battingTeamSc.getWicketsLost() < 10) {
-
-            int bowlerIndex = ThreadLocalRandom.current().nextInt(5, 11);
-            BowlingCard bowlingCard = playerScoreCards2.get(bowlerIndex).getBowlingCard();
-
-            int runsInCurrentOver = 0;
-
-            //Iterate for 6 balls in an over
-            for (int i = 0; i < 6 && battingTeamSc.getScore() < target; i++) {
-                int runsPerBall = ThreadLocalRandom.current().nextInt(0,8);
-                BattingCard battingCard = playerScoreCards1.get(playerOnStrike).getBattingCard();
-
-
-                if (runsPerBall == 7) {
-                    battingTeamSc.setWicketsLost(battingTeamSc.getWicketsLost() + 1); //Wicket is fallen
-                    //increment balls played by batsman
-                    battingCard.setBalls(battingCard.getBalls() + 1);
-
-                    playerOnStrike = nextPlayer;  //new player comes on strike
-                    nextPlayer++;
-
-                    //increment wickets taken by a bowler
-                    bowlingCard.setWickets(bowlingCard.getWickets() + 1);
-
-                    //if team is all-out break out of loop
-                    if (battingTeamSc.getWicketsLost() == 10) break;
-                } else {
-
-                    //increment runs score by batsman along with # of balls played, batting team score, runs given by bowler
-                    battingCard.setRuns(battingCard.getRuns() + runsPerBall);
-
-                    battingCard.setBalls(battingCard.getBalls() + 1);
-
-                    battingTeamSc.setScore(battingTeamSc.getScore() + runsPerBall);
-
-                    bowlingCard.setRunsGiven(bowlingCard.getRunsGiven() + runsPerBall);
-                    runsInCurrentOver += runsPerBall;
-                    if (runsPerBall % 2 == 1) {           //swap players as strike changes
-                        int temp = playerOnStrike;
-                        playerOnStrike = playerOnNonStrike;
-                        playerOnNonStrike = temp;
-                    } else if (runsPerBall == 4) {
-                        //increment fours scored by batsman
-                        battingCard.setFours(battingCard.getFours() + 1);
-                    } else if (runsPerBall == 6) {
-                        //increment sixes scored by batsman
-                        battingCard.setSixes(battingCard.getSixes() + 1);
-                    }
-                }
-
-
-            }
-
-            //swap players as strike changes
-            int temp = playerOnStrike;
-            playerOnStrike = playerOnNonStrike;
-            playerOnNonStrike = temp;
-
-            if (runsInCurrentOver == 0) {
-                //increment maiden overs by the bowler
-                bowlingCard.setMaidens(bowlingCard.getMaidens() + 1);
-            }
-
-            bowlingCard.setOvers(bowlingCard.getOvers() + 1);
-
-            currentOver++;
-        }
-
-    }
-
     public MatchScoreCard playMatch() {
-        MatchScoreCard sc = new MatchScoreCard("Alpha", "Beta");
+        List<Player> playerList1 = assignTeamPlayers1();
+        List<Player> playerList2 = assignTeamPlayers2();
+        MatchScoreCard sc = new MatchScoreCard("Alpha", "Beta", playerList1, playerList2);
         List<PlayerScoreCard> playerScoreCards1 = new ArrayList<>(11);
         List<PlayerScoreCard> playerScoreCards2 = new ArrayList<>(11);
 
         initializeScoreCards(playerScoreCards1);
         initializeScoreCards(playerScoreCards2);
 
-        playInning(sc.getTeamScoreCard1(), 50, Integer.MAX_VALUE, playerScoreCards1, playerScoreCards2);
-        playInning(sc.getTeamScoreCard2(), 50, sc.getTeamScoreCard1().getScore() + 1, playerScoreCards2, playerScoreCards1);
+        GameHelper.playInning(sc.getTeamScoreCard1(), sc.getTeamScoreCard2(), 50, Integer.MAX_VALUE, playerScoreCards1, playerScoreCards2);
+        GameHelper.playInning(sc.getTeamScoreCard2(), sc.getTeamScoreCard1(), 50, sc.getTeamScoreCard1().getScore() + 1, playerScoreCards2, playerScoreCards1);
 
         mapPlayersWithScoreCards(sc, playerScoreCards1, playerScoreCards2);
-        assignWinner(sc);
+        assignTeamWinner(sc);
         return sc;
     }
 
     private void initializeScoreCards(List<PlayerScoreCard> playerScoreCards) {
         for (int i = 0; i < 11; i++)
             playerScoreCards.add(i, new PlayerScoreCard());
-
     }
-
 
     private void mapPlayersWithScoreCards(MatchScoreCard sc, List<PlayerScoreCard> playerScoreCards1, List<PlayerScoreCard> playerScoreCards2) {
         List<Player> players1 = sc.getTeamScoreCard1().getTeam().getPlayers();
@@ -130,4 +54,34 @@ public class StartGame {
         }
     }
 
+    private List<Player> assignTeamPlayers1() {
+        List<Player> players = new ArrayList<>(11);
+        players.add(0,new Player(1,Player.Category.BATSMAN,987,18));
+        players.add(1,new Player(2,Player.Category.BATSMAN,960,2));
+        players.add(2,new Player(3,Player.Category.BATSMAN,981,12));
+        players.add(3,new Player(4,Player.Category.BATSMAN,879,60));
+        players.add(4,new Player(5,Player.Category.BATSMAN,799,100));
+        players.add(5,new Player(6,Player.Category.BOWLER,567,800));
+        players.add(6,new Player(7,Player.Category.BOWLER,450,861));
+        players.add(7,new Player(8,Player.Category.BOWLER,200,801));
+        players.add(8,new Player(9,Player.Category.BOWLER,4,760));
+        players.add(9,new Player(10,Player.Category.BOWLER,9,771));
+        players.add(10,new Player(11,Player.Category.BOWLER,8,940));
+        return players;
+    }
+    private List<Player> assignTeamPlayers2() {
+        List<Player> players = new ArrayList<>(11);
+        players.add(0,new Player(21,Player.Category.BATSMAN,976,81));
+        players.add(1,new Player(22,Player.Category.BATSMAN,961,21));
+        players.add(2,new Player(23,Player.Category.BATSMAN,912,10));
+        players.add(3,new Player(24,Player.Category.BATSMAN,850,70));
+        players.add(4,new Player(25,Player.Category.BATSMAN,776,150));
+        players.add(5,new Player(26,Player.Category.BOWLER,590,851));
+        players.add(6,new Player(27,Player.Category.BOWLER,489,882));
+        players.add(7,new Player(28,Player.Category.BOWLER,190,804));
+        players.add(8,new Player(29,Player.Category.BOWLER,13,766));
+        players.add(9,new Player(30,Player.Category.BOWLER,17,710));
+        players.add(10,new Player(31,Player.Category.BOWLER,7,914));
+        return players;
+    }
 }
