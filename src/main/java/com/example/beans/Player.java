@@ -1,13 +1,9 @@
 package com.example.beans;
 
+import lombok.Data;
+
+@Data
 public class Player {
-    private int playerid;
 
-    public int getPlayerid() {
-        return playerid;
-    }
-
-    public void setPlayerid(int playerid) {
-        this.playerid = playerid;
-    }
+    private int id;
 }

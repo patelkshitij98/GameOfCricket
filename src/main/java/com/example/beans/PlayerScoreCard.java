@@ -1,28 +1,16 @@
 package com.example.beans;
 
-public class PlayerScoreCard {
+import lombok.Data;
 
-    PlayerBattingScoreCard playerBattingScoreCard;
-    PlayerBowlingScoreCard playerBowlingScoreCard;
+public @Data
+class PlayerScoreCard {
+
+    BattingCard battingCard;
+    BowlingCard bowlingCard;
 
     public PlayerScoreCard() {
-        this.playerBattingScoreCard = new PlayerBattingScoreCard();
-        this.playerBowlingScoreCard = new PlayerBowlingScoreCard();
+        this.battingCard = new BattingCard();
+        this.bowlingCard = new BowlingCard();
     }
 
-    public PlayerBattingScoreCard getPlayerBattingScoreCard() {
-        return playerBattingScoreCard;
-    }
-
-    public void setPlayerBattingScoreCard(PlayerBattingScoreCard playerBattingScoreCard) {
-        this.playerBattingScoreCard = playerBattingScoreCard;
-    }
-
-    public PlayerBowlingScoreCard getPlayerBowlingScoreCard() {
-        return playerBowlingScoreCard;
-    }
-
-    public void setPlayerBowlingScoreCard(PlayerBowlingScoreCard playerBowlingScoreCard) {
-        this.playerBowlingScoreCard = playerBowlingScoreCard;
-    }
 }
