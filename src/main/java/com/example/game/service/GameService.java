@@ -1,7 +1,9 @@
 package com.example.game.service;
 
 import com.example.game.beans.*;
+import com.example.game.repositories.*;
 import com.example.game.util.CricketGame;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,14 +12,21 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GameController {
+public class GameService {
 
     private Team team1;
     private Team team2;
     private MatchScoreCard matchScoreCard;
     private Helper helper;
 
-    private class Helper{
+    @Autowired
+    private TeamRepository teamRepository;
+    @Autowired
+    private MatchScoreCardRepository matchScoreCardRepository;
+    @Autowired
+    private TeamStatisticsRepository teamStatisticsRepository;
+
+    private class Helper {
         TeamScoreCard teamScoreCard1;
         TeamScoreCard teamScoreCard2;
         List<PlayerScoreCard> playerScoreCards1;
@@ -30,12 +39,13 @@ public class GameController {
         mapPlayersWithPlayerScoreCards();
         mapTeamsWithTeamScoreCards();
         assignWinner();
+        storeMatchStatistics();
         return matchScoreCard;
     }
 
     private void initializeTeamsAndScoreCards() {
-        this.team1 = new Team(1, "Alpha", assignTeam1Players());
-        this.team2 = new Team(2, "Beta", assignTeam2Players());
+        this.team1 = teamRepository.getTeamById(1);
+        this.team2 = teamRepository.getTeamById(2);
         this.matchScoreCard = new MatchScoreCard();
         this.helper = new Helper();
         this.helper.teamScoreCard1 = new TeamScoreCard();
@@ -56,7 +66,7 @@ public class GameController {
         CricketGame.playInning(players2DList, helper.teamScoreCard2, helper.teamScoreCard1.getScore() + 1, playerScoreCards2DList);
     }
 
-    private void setupInning(int inningNumber,List<List<Player>> players2DList,
+    private void setupInning(int inningNumber, List<List<Player>> players2DList,
                              List<List<PlayerScoreCard>> playerScoreCards2DList) {
         playerScoreCards2DList.add(0, (inningNumber == 1) ? helper.playerScoreCards1 : helper.playerScoreCards2);
         playerScoreCards2DList.add(1, (inningNumber == 1) ? helper.playerScoreCards2 : helper.playerScoreCards1);
@@ -76,6 +86,16 @@ public class GameController {
         helper.teamScoreCard1.setPlayerScoreCardMap(playerScMap1);
         helper.teamScoreCard2.setPlayerScoreCardMap(playerScMap2);
         for (int i = 0; i < 11; i++) {
+            PlayerScoreCard playerScoreCard1 = helper.playerScoreCards1.get(i);
+            BattingCard battingCard1 = playerScoreCard1.getBattingCard();
+            BowlingCard bowlingCard1 = playerScoreCard1.getBowlingCard();
+            helper.playerScoreCards1.set(i,playerScoreCard1);
+
+            PlayerScoreCard playerScoreCard2 = helper.playerScoreCards2.get(i);
+            BattingCard battingCard2 = playerScoreCard2.getBattingCard();
+            BowlingCard bowlingCard2 = playerScoreCard2.getBowlingCard();
+            helper.playerScoreCards2.set(i,playerScoreCard2);
+
             playerScMap1.put(team1.getPlayers().get(i).getId(), helper.playerScoreCards1.get(i));
             playerScMap2.put(team2.getPlayers().get(i).getId(), helper.playerScoreCards2.get(i));
         }
@@ -92,32 +112,40 @@ public class GameController {
 
         String result = "TIE";
         if (helper.teamScoreCard1.getScore() > helper.teamScoreCard2.getScore()) {
+            matchScoreCard.setWinnerTeamId(team1.getId());
             result = team1.getName() + " won by " + (helper.teamScoreCard1.getScore() - helper.teamScoreCard2.getScore()) + " run/s";
         } else if (helper.teamScoreCard1.getScore() < helper.teamScoreCard2.getScore()) {
+            matchScoreCard.setWinnerTeamId(team2.getId());
             result = team2.getName() + " won by " + (10 - helper.teamScoreCard2.getWicketsLost()) + " wicket/s";
         }
         matchScoreCard.setResult(result);
     }
 
-    private List<Player> assignTeam1Players() {
-        List<Player> players = new ArrayList<>(11);
-        int[] batsmanRating = new int[]{987, 960, 981, 879, 799, 567, 450, 200, 4, 9, 8};
-        int[] bowlerRating = new int[]{18, 2, 12, 60, 100, 800, 861, 801, 760, 771, 940};
-        for(int i=0;i<5;i++)
-            players.add(i, new Player(i+1, Player.Category.BATSMAN, batsmanRating[i], bowlerRating[i]));
-        for(int i=5;i<11;i++)
-            players.add(i, new Player(i+1, Player.Category.BOWLER, batsmanRating[i], bowlerRating[i]));
-        return players;
+    private void storeMatchStatistics() {
+        matchScoreCardRepository.save(matchScoreCard);
+        TeamStatistics team1Statistics = teamStatisticsRepository.getTeamStatisticsByTeamId(team1.getId());
+        if(team1Statistics == null){
+            team1Statistics = new TeamStatistics(team1.getId(),0,0,0);
+        }
+        TeamStatistics team2Statistics = teamStatisticsRepository.getTeamStatisticsByTeamId(team2.getId());
+        if(team2Statistics == null){
+            team2Statistics = new TeamStatistics(team2.getId(),0,0,0);
+        }
+        if(matchScoreCard.getWinnerTeamId() == team1.getId()){
+            team1Statistics.setWon(team1Statistics.getWon() + 1);
+            team2Statistics.setLost(team2Statistics.getLost() + 1);
+        }
+        else if(matchScoreCard.getWinnerTeamId() == team2.getId()){
+            team2Statistics.setWon(team2Statistics.getWon() + 1);
+            team1Statistics.setLost(team1Statistics.getLost() + 1);
+        }
+        else{
+            team1Statistics.setDraw(team1Statistics.getDraw() + 1);
+            team2Statistics.setDraw(team2Statistics.getDraw() + 1);
+        }
+        teamStatisticsRepository.save(team1Statistics);
+        teamStatisticsRepository.save(team2Statistics);
     }
 
-    private List<Player> assignTeam2Players() {
-        List<Player> players = new ArrayList<>(11);
-        int[] batsmanRating = new int[]{976, 961, 912, 850, 776, 590, 489, 190, 13, 17, 7};
-        int[] bowlerRating = new int[]{81, 21, 10, 70, 150, 851, 882, 804, 766, 710, 914};
-        for(int i=0, j=21 ;i<5;i++,j++)
-            players.add(i, new Player(j, Player.Category.BATSMAN, batsmanRating[i], bowlerRating[i]));
-        for(int i=5, j=26 ;i<11;i++,j++)
-            players.add(i, new Player(j, Player.Category.BOWLER, batsmanRating[i], bowlerRating[i]));
-        return players;
-    }
+
 }
