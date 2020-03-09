@@ -1,11 +1,11 @@
-package com.example.beans;
+package com.example.game.beans;
 
 import lombok.Data;
 
 @Data
 public class BowlingCard {
-    private int overs;
+    private double overs;
     private int runsGiven;
-    private int wickets;
+    private int wicketsTaken;
     private int maidens;
 }
